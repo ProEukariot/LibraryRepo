@@ -1,0 +1,32 @@
+﻿* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+span[role="button"] {
+    user-select: none;
+}
+
+#carousel-main .carousel-item > img {
+    height: 100vh;
+}
+
+section.body-description {
+    height: 100vh;
+}
+
+    section.body-description > .container {
+        height: inherit;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+.form-container {
+    height: 100vh;
+}
+
+.form {
+    width: 36rem;
+}

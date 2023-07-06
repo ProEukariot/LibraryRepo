@@ -1,0 +1,46 @@
+﻿
+<div class="container form-container d-flex justify-content-center align-items-center">
+
+	<form class="form" asp-controller="" asp-action="">
+
+		<div class="form-floating mb-3">
+			<input id="username-inp" name="usr" type="text" class="form-control" placeholder="#" />
+			<label for="username-inp">Username</label>
+		</div>
+
+		<div class="form-floating mb-3">
+			<input id="email-inp" name="eml" type="email" class="form-control" placeholder="#" />
+			<label for="email-inp">Email</label>
+		</div>
+
+		<div class="input-group mb-3">
+			<div class="form-floating">
+				<input id="password-inp" name="pwd" type="password" class="form-control" placeholder="#" />
+				<label for="password-inp">Password</label>
+			</div>
+			<div class="input-group-text align-items-center">
+				<span role="button" onclick="handlePwdVisibility(this, 'password-inp')" id="show-pwd-btn" class="material-symbols-outlined">
+					visibility_off
+				</span>
+			</div>
+		</div>
+
+		<div class="input-group mb-3">
+			<div class="form-floating">
+				<input id="password-repeat-inp" name="pwd-rpt" type="password" class="form-control" placeholder="#" />
+				<label for="password-repeat-inp">Password</label>
+			</div>
+			<div class="input-group-text align-items-center">
+				<span role="button" onclick="handlePwdVisibility(this, 'password-repeat-inp')" id="show-pwd-btn" class="material-symbols-outlined">
+					visibility_off
+				</span>
+			</div>
+		</div>
+
+		<input class="btn btn-warning w-100 py-2" type="submit" name="sbm" value="Login" />
+
+		<a asp-action="Login" class="float-end mt-2">Already have an account?</a>
+	</form>
+
+
+</div>

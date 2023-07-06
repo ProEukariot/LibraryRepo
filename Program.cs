@@ -10,16 +10,19 @@ namespace LibraryApp
 
 			var app = builder.Build();
 
+			app.UseHttpsRedirection();
+
 			app.UseStaticFiles();
 			app.UseRouting();
+
 
 			app.UseAuthentication();
 			app.UseAuthorization();
 
 			app.MapControllerRoute(
-				name: "Default", 
+				name: "Default",
 				pattern: "{Controller=Home}/{Action=Index}/{id?}"
-				);
+			);
 
 			app.Run();
 		}

@@ -1,0 +1,54 @@
+{
+  "Version": 1,
+  "Hash": "853U3CjNTm0g1HHKd2Alq1Szb91CriXtAurk8kop6ZM=",
+  "Source": "LibraryApp",
+  "BasePath": "_content/LibraryApp",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [
+    {
+      "Name": "LibraryApp\\wwwroot",
+      "Source": "LibraryApp",
+      "ContentRoot": "C:\\Users\\ProEu\\source\\repos\\LibraryApp\\wwwroot\\",
+      "BasePath": "_content/LibraryApp",
+      "Pattern": "**"
+    }
+  ],
+  "Assets": [
+    {
+      "Identity": "C:\\Users\\ProEu\\source\\repos\\LibraryApp\\wwwroot\\css\\index.css",
+      "SourceId": "LibraryApp",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\ProEu\\source\\repos\\LibraryApp\\wwwroot\\",
+      "BasePath": "_content/LibraryApp",
+      "RelativePath": "css/index.css",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\css\\index.css"
+    },
+    {
+      "Identity": "C:\\Users\\ProEu\\source\\repos\\LibraryApp\\wwwroot\\js\\index.js",
+      "SourceId": "LibraryApp",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\ProEu\\source\\repos\\LibraryApp\\wwwroot\\",
+      "BasePath": "_content/LibraryApp",
+      "RelativePath": "js/index.js",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\js\\index.js"
+    }
+  ]
+}
