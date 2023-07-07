@@ -1,3 +1,6 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.Data.SqlClient;
+
 namespace LibraryApp
 {
 	public class Program
@@ -7,6 +10,13 @@ namespace LibraryApp
 			var builder = WebApplication.CreateBuilder(args);
 
 			builder.Services.AddControllersWithViews();
+			builder.Services.AddTransient<SqlConnection>(opt => new SqlConnection(builder.Configuration.GetConnectionString("Default"))); ;
+
+			builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(opt => {
+				opt.AccessDeniedPath = "/Auth/Denied";
+				opt.LoginPath = "/Auth/Login";
+				opt.ExpireTimeSpan = TimeSpan.FromMinutes(2);
+			});
 
 			var app = builder.Build();
 
