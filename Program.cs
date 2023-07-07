@@ -15,7 +15,7 @@ namespace LibraryApp
 			builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(opt => {
 				opt.AccessDeniedPath = "/Auth/Denied";
 				opt.LoginPath = "/Auth/Login";
-				opt.ExpireTimeSpan = TimeSpan.FromMinutes(2);
+				opt.ExpireTimeSpan = TimeSpan.FromMinutes(30);
 			});
 
 			var app = builder.Build();

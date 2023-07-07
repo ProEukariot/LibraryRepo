@@ -12,5 +12,7 @@ namespace LibraryApp.Models
         [EmailAddress]
         [StringLength(30, MinimumLength = 4)]
         public string Email { get; set; } = string.Empty;
-    }
+
+        public string Role { get; set; } = string.Empty;
+	}
 }

@@ -6,13 +6,13 @@
 	<form class="form" asp-controller="Auth" asp-action="Login">
 		<div class="form-floating mb-3">
 			<input asp-for="Username" type="text" class="form-control" placeholder="#" />
-			<label asp-for="Username"></label>
+			<label asp-for="Username" class="form-label"></label>
 		</div>
 
 		<div class="input-group mb-3">
 			<div class="form-floating">
 				<input asp-for="Password" type="password" class="form-control" placeholder="#" />
-				<label asp-for="Password"></label>
+				<label asp-for="Password" class="form-label"></label>
 			</div>
 			<div class="input-group-text align-items-center">
 				<span role="button" onclick="handlePwdVisibility(this, 'Password')" id="show-pwd-btn" class="material-symbols-outlined">

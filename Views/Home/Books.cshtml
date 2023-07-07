@@ -1,1 +1,25 @@
-﻿<h1>books</h1>
+﻿
+<div class="container my-3">
+	<h1 class="">Books</h1>
+
+	@{
+		int[] arr = { 1, 2, 3 };
+	}
+
+	@if (arr.Length < 1)
+	{
+		<h5 class="text-danger">No items.</h5>
+	}
+
+	<ul>
+		@foreach (var i in arr)
+		{
+			<li>@i</li>
+		}
+		@if (User.IsInRole("Admin"))
+		{
+			<li><a asp-controller="Admin" asp-action="AddBook" class="btn btn-warning">Add</a></li>
+		}
+	</ul>
+
+</div>

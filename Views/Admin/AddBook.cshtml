@@ -1,0 +1,41 @@
+﻿@model LibraryApp.Models.Book;
+
+<div class="container my-3">
+	<h1>Add book</h1>
+
+	<form asp-controller="Admin" asp-action="AddBook" class="form" enctype="multipart/form-data">
+		<div class="form-floating mb-3">
+			<input asp-for="Name" type="text" class="form-control" placeholder="#" />
+			<label asp-for="Name" class="form-label"></label>
+		</div>
+
+		<div class="form-floating mb-3">
+			<input asp-for="Author" type="text" class="form-control" placeholder="#" />
+			<label asp-for="Author" class="form-label"></label>
+		</div>
+
+		<div class="form-floating mb-3">
+			<input asp-for="Genre" type="text" class="form-control" placeholder="#" />
+			<label asp-for="Genre" class="form-label"></label>
+		</div>
+
+		<div class="form-floating mb-3">
+			<textarea asp-for="Description" class="form-control" placeholder="#" style="height: 100px"></textarea>
+			<label asp-for="Description" class="form-label"></label>
+		</div>
+
+		<div class="mb-3">
+			<label class="form-label" asp-for="Image"></label>
+			<input asp-for="Image" type="file" accept=".png" class="form-control" placeholder="#" />
+		</div>
+
+		<div class="mb-3">
+			<label class="form-label" asp-for="BookContents"></label>
+			<input asp-for="BookContents" type="file" accept=".pdf" class="form-control" placeholder="#" />
+		</div>
+
+		<input type="submit" class="btn btn-danger" value="Upload"/>
+
+		<div asp-validation-summary="All" class="mt-2 text-danger"></div>
+	</form>
+</div>

@@ -63,9 +63,8 @@ namespace LibraryApp.Controllers
                             user.Id = reader.GetGuid(0);
                             user.Username = reader.GetString(1);
                             user.Email = reader.GetString(3);
+                            user.Role = reader.GetString(4);
                         }
-
-                        Console.WriteLine(user.Id);
                     }
                 }
             }
@@ -82,7 +81,8 @@ namespace LibraryApp.Controllers
             var claim = new List<Claim>() {
                 new Claim(ClaimTypes.Name, user.Username),
                 new Claim(ClaimTypes.Email, user.Email),
-            };
+				new Claim(ClaimTypes.Role, user.Role),
+			};
 
             var claimsIdentity = new ClaimsIdentity(claim, CookieAuthenticationDefaults.AuthenticationScheme);
 
@@ -108,8 +108,8 @@ namespace LibraryApp.Controllers
             {
                 await db.OpenAsync();
 
-                string qry = "INSERT INTO Users(Id, Username, PasswordHash, Email) " +
-                    "VALUES (@id, @username, @passwordHash, @email); ";
+                string qry = "INSERT INTO Users(Id, Username, PasswordHash, Email, Role) " +
+                    "VALUES (@id, @username, @passwordHash, @email, @role); ";
 
                 using (SqlCommand cmd = new(qry, db))
                 {
@@ -117,8 +117,9 @@ namespace LibraryApp.Controllers
                     cmd.Parameters.AddWithValue("@username", model.Username);
                     cmd.Parameters.AddWithValue("@passwordHash", Calc.Hash(model.Password));
                     cmd.Parameters.AddWithValue("@email", model.Email);
+					cmd.Parameters.AddWithValue("@role", "Customer");
 
-                    await cmd.ExecuteNonQueryAsync();
+					await cmd.ExecuteNonQueryAsync();
                 }
             }
             catch (Exception e)
@@ -131,12 +132,13 @@ namespace LibraryApp.Controllers
                 await db.CloseAsync();
             }
 
-            User user = new() { Username = model.Username, Email = model.Email };
+            User user = new() { Username = model.Username, Email = model.Email, Role = "Customer" };
 
             var claim = new List<Claim>() {
                 new Claim(ClaimTypes.Name, user.Username),
                 new Claim(ClaimTypes.Email, user.Email),
-            };
+				new Claim(ClaimTypes.Role, user.Role),
+			};
 
             var claimsIdentity = new ClaimsIdentity(claim, CookieAuthenticationDefaults.AuthenticationScheme);
 
