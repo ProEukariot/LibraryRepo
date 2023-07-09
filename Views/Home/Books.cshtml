@@ -1,25 +1,30 @@
-﻿
-<div class="container my-3">
-	<h1 class="">Books</h1>
+﻿@model IEnumerable<LibraryApp.Models.Book>
 
-	@{
-		int[] arr = { 1, 2, 3 };
-	}
+@using LibraryApp.Extensions;
 
-	@if (arr.Length < 1)
+<div class="container-fluid my-3 px-4">
+	<div class="d-inline-flex align-items-center">
+		<h1 class="me-3">Books</h1>
+		@if (User.IsInRole("Admin"))
+		{
+			<a asp-controller="Admin" asp-action="AddBook" class="btn btn-success">Add book</a>
+		}
+	</div>
+
+	@if (Model.Count() < 1)
 	{
 		<h5 class="text-danger">No items.</h5>
 	}
 
-	<ul>
-		@foreach (var i in arr)
+	<div class="row">
+		@foreach (var book in Model)
 		{
-			<li>@i</li>
+			<div class="px-3 col-12 col-sm-6 col-md-4 col-lg-3 text-center">
+				<h4>@book.Name</h4>
+				<a asp-controller="Home" asp-action="Books" asp-route-Id="@book.Id">
+					<img style="min-height: 24rem" class="zoom rounded img-fluid object-fit-cover" alt="@book.Name" src="data:image/png;base64,@Convert.ToBase64String(book.Image)" />
+				</a>
+			</div>
 		}
-		@if (User.IsInRole("Admin"))
-		{
-			<li><a asp-controller="Admin" asp-action="AddBook" class="btn btn-warning">Add</a></li>
-		}
-	</ul>
-
+	</div>
 </div>

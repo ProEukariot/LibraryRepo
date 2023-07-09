@@ -4,6 +4,16 @@
     box-sizing: border-box;
 }
 
+#page {
+    position: relative; 
+    min-height: 100vh;
+}
+
+#footer {
+    position: absolute;
+    bottom: 0;
+}
+
 span[role="button"] {
     user-select: none;
 }
@@ -30,3 +40,19 @@ section.body-description {
 .form {
     width: 36rem;
 }
+
+.abs-center {
+    z-index: 1;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.zoom {
+    transition: all ease .2s
+}
+
+    .zoom:hover {
+        box-shadow: 5px 5px 10px black;
+        transform: scale(1.1)
+    }

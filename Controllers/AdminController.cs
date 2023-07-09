@@ -22,7 +22,7 @@ namespace LibraryApp.Controllers
 		public IActionResult AddBook() => View();
 
 		[HttpPost]
-		public async Task<IActionResult> AddBook(Book model)
+		public async Task<IActionResult> AddBook(BookSubmitViewModel model)
 		{
 			if (model.Image == null)
 				ModelState.AddModelError("", "Image is required.");
@@ -77,7 +77,7 @@ namespace LibraryApp.Controllers
 				streamContent.Close();
 			}
 
-			return View();
+			return RedirectToAction("Books", "Home");
 		}
 	}
 }

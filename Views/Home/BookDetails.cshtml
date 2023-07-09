@@ -1,0 +1,17 @@
+﻿@model LibraryApp.Models.Book
+
+<div id="book-profile" class="container row my-3">
+	<img style="max-height: 36rem" class="col-12 col-sm-6 rounded img-fluid object-fit-cover" rel="@Model.Name" src="data:image/png;base64,@Convert.ToBase64String(Model.Image)" />
+
+	<div class="col-12 col-sm-6 text-center text-break">
+		<h2>@Model.Name</h2>
+		<ul style="list-style: none;">
+			<li >@Model.Author</li>
+			<li>@Model.Genre</li>
+			<li>@Model.Description</li>
+		</ul>
+
+		<a asp-controller="Home" asp-action="Read" asp-route-ActionType="Read" asp-route-Id="@Model.Id" class="btn btn-success">Read</a>
+		<a asp-controller="Home" asp-action="Read" asp-route-ActionType="Download" asp-route-Id="@Model.Id" class="btn btn-warning">Download</a>
+	</div>
+</div>
