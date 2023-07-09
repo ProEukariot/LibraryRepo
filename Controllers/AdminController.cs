@@ -1,10 +1,12 @@
 ﻿using LibraryApp.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using System.Net.Http;
 
 namespace LibraryApp.Controllers
 {
+	[Authorize(Roles = "Admin")]
 	public class AdminController : Controller
 	{
 		private readonly SqlConnection db;
@@ -14,10 +16,7 @@ namespace LibraryApp.Controllers
 			db = con;
 		}
 
-		public IActionResult Index()
-		{
-			return View();
-		}
+		public IActionResult Index() => View();
 
 		public IActionResult AddBook() => View();
 
@@ -62,8 +61,6 @@ namespace LibraryApp.Controllers
 
 					await cmd.ExecuteNonQueryAsync();
 				}
-
-				//Console.WriteLine(imageBuffer + "[--]" + contentBuffer + "[--]");
 			}
 			catch (Exception e)
 			{

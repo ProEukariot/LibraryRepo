@@ -4,7 +4,7 @@
 
 <div class="container-fluid my-3 px-4">
 	<div class="d-inline-flex align-items-center">
-		<h1 class="me-3">Books</h1>
+		<h1 class="me-3 mb-0">Books</h1>
 		@if (User.IsInRole("Admin"))
 		{
 			<a asp-controller="Admin" asp-action="AddBook" class="btn btn-success">Add book</a>

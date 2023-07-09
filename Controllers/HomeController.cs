@@ -1,8 +1,10 @@
 ﻿using LibraryApp.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.Net.Http.Headers;
 using System.Data;
+using System.Text.RegularExpressions;
 
 namespace LibraryApp.Controllers
 {
@@ -17,6 +19,7 @@ namespace LibraryApp.Controllers
 
 		public IActionResult Index() => View();
 
+		[Authorize]
 		public async Task<IActionResult> Read(Guid? id, string? actionType)
 		{
 			string query = "SELECT * FROM Books WHERE id = @id; ";
@@ -67,8 +70,8 @@ namespace LibraryApp.Controllers
 					goto case "Read";
 			}
 		}
-		//"application/octet-stream"
-		public async Task<IActionResult> Books(Guid? id = null)
+
+		public async Task<IActionResult> Books(Guid? id = null, string pattern = "")
 		{
 			string query = "SELECT * FROM Books; ";
 			List<Book> books = new() { };
@@ -109,10 +112,12 @@ namespace LibraryApp.Controllers
 								{
 									Id = reader.GetGuid(0),
 									Name = reader.GetString(1),
+									Author = reader.GetString(2),
 									Image = (byte[])reader[5],
 								};
 
-								books.Add(book);
+								if(Regex.IsMatch(book.Name, pattern) || Regex.IsMatch(book.Author, pattern))
+									books.Add(book);
 							}
 						}
 					}

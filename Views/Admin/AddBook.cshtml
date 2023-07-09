@@ -3,7 +3,7 @@
 <div class="container my-3">
 	<h1>Add book</h1>
 
-	<form asp-controller="Admin" asp-action="AddBook" class="form" enctype="multipart/form-data">
+	<form method="post" asp-controller="Admin" asp-action="AddBook" class="form" enctype="multipart/form-data">
 		<div class="form-floating mb-3">
 			<input asp-for="Name" type="text" class="form-control" placeholder="#" />
 			<label asp-for="Name" class="form-label"></label>

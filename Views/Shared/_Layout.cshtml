@@ -11,8 +11,7 @@
 <body>
 	<div id="page">
 		<div id="content">
-@*			<div id="anchor" class="p-relative" style="height: 56px"></div>
-*@			<nav class="position-relative navbar navbar-expand-md bg-primary fixed-top">
+			<nav class="position-relative navbar navbar-expand-md bg-primary fixed-top">
 				<div class="container-fluid">
 					<a class="navbar-brand text-light" href="#">OneLib</a>
 					<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-toggle">
@@ -31,7 +30,7 @@
 							@if (!User.Identity!.IsAuthenticated)
 							{
 								<li class="nav-item">
-									<a asp-controller="Auth" asp-action="Login" class="nav-link text-light">Login</a>
+									<a asp-controller="Auth" asp-action="Login" asp-route-ReturnUrl="@Context.Request.Path" class="nav-link text-light">Login</a>
 								</li>
 							}
 							else
@@ -56,8 +55,8 @@
 							}
 						</ul>
 
-						<form class="d-flex" role="search">
-							<input class="form-control me-2" type="search" placeholder="Search">
+						<form method="get" class="d-flex" role="search" asp-controller="Home" asp-action="Books">
+							<input value="@Context.Request.Query["pattern"]" name="pattern" class="form-control me-2" type="search" placeholder="Search">
 							<button class="btn btn-warning" type="submit">Search</button>
 						</form>
 					</div>
