@@ -40,7 +40,7 @@
 
 		<input class="btn btn-warning w-100 py-2" type="submit" name="sbm" value="Register" />
 
-		<a asp-action="Login" class="float-end mt-2 ps-3">Already have an account?</a>
+		<a asp-action="Login" asp-route-ReturnUrl="@Context.Request.Query["returnUrl"]" class="float-end mt-2 ps-3">Already have an account?</a>
 
 		<div asp-validation-summary="All" class="mt-2 text-danger"></div>
 

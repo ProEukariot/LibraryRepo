@@ -1,8 +1,19 @@
-﻿@model LibraryApp.Models.Book;
+﻿@model LibraryApp.Models.BookSubmitViewModel;
 
 <div class="container my-3">
 	<h1>Add book</h1>
 
+	@if (Context.Response.StatusCode == 201)
+	{
+		<div class="alert alert-success" role="alert">Book added successfully.</div>
+	}
+	else
+	{
+		@if (Context.Response.StatusCode == 400)
+		{
+			<div class="alert alert-success" role="alert">Book added successfully.</div>
+		}
+	}
 	<form method="post" asp-controller="Admin" asp-action="AddBook" class="form" enctype="multipart/form-data">
 		<div class="form-floating mb-3">
 			<input asp-for="Name" type="text" class="form-control" placeholder="#" />
@@ -34,8 +45,8 @@
 			<input asp-for="BookContents" type="file" accept=".pdf" class="form-control" placeholder="#" />
 		</div>
 
-		<input type="submit" class="btn btn-danger" value="Upload"/>
+		<input type="submit" class="btn btn-danger" value="Upload" />
 
-		<div asp-validation-summary="All" class="mt-2 text-danger"></div>
+		<div asp-validation-summary="All" class="d-block mt-2 text-danger"></div>
 	</form>
 </div>

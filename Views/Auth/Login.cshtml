@@ -23,7 +23,7 @@
 
 		<input class="btn btn-warning w-100 py-2" type="submit" name="sbm" value="Login" />
 
-		<a asp-action="Regist" class="float-end mt-2 ps-3">Do not have an account?</a>
+		<a asp-action="Regist" asp-route-ReturnUrl="@Context.Request.Query["returnUrl"]" class="float-end mt-2 ps-3">Do not have an account?</a>
 
 		<div asp-validation-summary="All" class="mt-2 text-danger"></div>
 	</form>

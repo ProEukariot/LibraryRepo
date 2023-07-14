@@ -4,12 +4,13 @@
     box-sizing: border-box;
 }
 
-#page {
-    position: relative; 
+body {
     min-height: 100vh;
+    position: relative;
+    padding-bottom: 3rem;
 }
 
-#footer {
+footer {
     position: absolute;
     bottom: 0;
 }
@@ -35,10 +36,6 @@ section.body-description {
 
 .form-container {
     height: 100vh;
-}
-
-.form {
-    width: 36rem;
 }
 
 .abs-center {

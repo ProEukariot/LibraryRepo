@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Data.SqlClient;
 
 namespace LibraryApp
@@ -9,6 +10,9 @@ namespace LibraryApp
 		{
 			var builder = WebApplication.CreateBuilder(args);
 
+			builder.Services.Configure<KestrelServerOptions>(opt => {
+				opt.AllowSynchronousIO = true;
+			});
 			builder.Services.AddControllersWithViews();
 			builder.Services.AddTransient<SqlConnection>(opt => new SqlConnection(builder.Configuration.GetConnectionString("Default"))); ;
 

@@ -1,4 +1,5 @@
-﻿@model IEnumerable<LibraryApp.Models.Book>
+﻿@model LibraryApp.Models.BooksViewModel
+@addTagHelper *, LibraryApp
 
 @using LibraryApp.Extensions;
 
@@ -11,13 +12,13 @@
 		}
 	</div>
 
-	@if (Model.Count() < 1)
+	@if (Model.Values.Count() < 1)
 	{
 		<h5 class="text-danger">No items.</h5>
 	}
 
 	<div class="row">
-		@foreach (var book in Model)
+		@foreach (var book in Model.Values)
 		{
 			<div class="px-3 col-12 col-sm-6 col-md-4 col-lg-3 text-center">
 				<h4>@book.Name</h4>
@@ -27,4 +28,6 @@
 			</div>
 		}
 	</div>
+
+	<page-link page-action="Books" view-model="@Model" />
 </div>

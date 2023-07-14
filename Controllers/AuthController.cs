@@ -80,6 +80,7 @@ namespace LibraryApp.Controllers
 			}
 
 			var claim = new List<Claim>() {
+				new Claim("Id", user.Id.ToString()),
 				new Claim(ClaimTypes.Name, user.Username),
 				new Claim(ClaimTypes.Email, user.Email),
 				new Claim(ClaimTypes.Role, user.Role),
@@ -131,6 +132,7 @@ namespace LibraryApp.Controllers
 			User user = new() { Username = model.Username, Email = model.Email, Role = "Customer" };
 
 			var claim = new List<Claim>() {
+				new Claim("Id", user.Id.ToString()),
 				new Claim(ClaimTypes.Name, user.Username),
 				new Claim(ClaimTypes.Email, user.Email),
 				new Claim(ClaimTypes.Role, user.Role),

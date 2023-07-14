@@ -6,12 +6,61 @@
 	<div class="col-12 col-sm-6 text-center text-break">
 		<h2>@Model.Name</h2>
 		<ul style="list-style: none;">
-			<li >@Model.Author</li>
+			<li>@Model.Author</li>
 			<li>@Model.Genre</li>
 			<li>@Model.Description</li>
 		</ul>
 
-		<a asp-controller="Home" asp-action="Read" asp-route-ActionType="Read" asp-route-Id="@Model.Id" target="_blank" class="btn btn-success">Read</a>
-		<a asp-controller="Home" asp-action="Read" asp-route-ActionType="Download" asp-route-Id="@Model.Id" class="btn btn-warning">Download</a>
+		<a asp-controller="Home" asp-action="Read" asp-route-ActionType="Read" asp-route-Id="@Model.Id" target="_blank" class="btn btn-success mb-2">Read</a>
+		<a asp-controller="Home" asp-action="Read" asp-route-ActionType="Download" asp-route-Id="@Model.Id" class="btn btn-warning mb-2">Download</a>
+
+		@{
+			string onclick = User.Identity!.IsAuthenticated ? "handleRequest(this)" : "redirectToLogin(this)";
+		}
+
+		<button id="favBtn" class="btn btn-primary mb-2" onclick="@onclick"></button>
+
 	</div>
 </div>
+
+<script>
+	let isFav = @ViewBag.IsFavorite.ToString().ToLower();
+
+	const btn = document.getElementById('favBtn');
+	btn.textContent = isFav ? 'Remove favorite' : 'Add favorite';
+
+
+	const redirectToLogin = (caller) => {
+		window.location = "/Auth/Login/?returnUrl=@Context.Request.Path";
+	}
+
+	@if (User.Identity.IsAuthenticated)
+	{
+		<text>
+			const handleRequest = (caller) => {
+			const data = { id: '@Model.Id' }
+
+			const url = isFav ? "/RemoveFav" : "/AddFav";
+
+			const request = new XMLHttpRequest();
+			request.open("POST", url, true);
+			request.setRequestHeader("Content-Type", "application/json");
+
+			request.onload = () => {
+				if (request.status === 200) {
+					isFav = !isFav;
+					btn.textContent = isFav ? 'Remove favorite' : 'Add favorite';
+				}
+				else
+					console.log("ERROR!");
+			}
+
+			const dataStr = JSON.stringify(data);
+
+			console.log(dataStr);
+
+			request.send(dataStr);
+		}
+		</text>
+	}
+</script>

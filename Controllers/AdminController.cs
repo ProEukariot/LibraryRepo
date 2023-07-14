@@ -23,12 +23,6 @@ namespace LibraryApp.Controllers
 		[HttpPost]
 		public async Task<IActionResult> AddBook(BookSubmitViewModel model)
 		{
-			if (model.Image == null)
-				ModelState.AddModelError("", "Image is required.");
-
-			if (model.BookContents == null)
-				ModelState.AddModelError("", "Image is required.");
-
 			if (!ModelState.IsValid)
 				return View(model);
 
@@ -65,6 +59,7 @@ namespace LibraryApp.Controllers
 			catch (Exception e)
 			{
 				ModelState.AddModelError("", e.Message);
+				HttpContext.Response.StatusCode = 400;
 				return View(model);
 			}
 			finally
@@ -74,7 +69,10 @@ namespace LibraryApp.Controllers
 				streamContent.Close();
 			}
 
-			return RedirectToAction("Books", "Home");
+			HttpContext.Response.StatusCode = 201;
+
+			return View(model);
+			//return RedirectToAction("AddBook", "Admin");
 		}
 	}
 }
