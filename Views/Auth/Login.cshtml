@@ -1,5 +1,5 @@
 ﻿@model LibraryApp.Models.UserIdentity
-
+@using Microsoft.AspNetCore.Http.Extensions;
 
 <div class="container form-container d-flex justify-content-center align-items-center">
 
@@ -24,7 +24,7 @@
 		<input class="btn btn-warning w-100 py-2" type="submit" name="sbm" value="Login" />
 
 		<a asp-action="Regist" asp-route-ReturnUrl="@Context.Request.Query["returnUrl"]" class="float-end mt-2 ps-3">Do not have an account?</a>
-
+		
 		<div asp-validation-summary="All" class="mt-2 text-danger"></div>
 	</form>
 

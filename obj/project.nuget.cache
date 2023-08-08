@@ -1,11 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "ZruRFg599YjzT5w0xjYd8szMw+vWLf7BfpL3yTGKwbeoMWIOYv1UKWKBHJV6agwvwnJwWQeKrzw7uJsR5xtZ0A==",
+  "dgSpecHash": "3bvzDuuN8DDA1YDreXyIPohzEKa609aT3xrgImZEtsLpNzgBmyrTOq69A1OlvDTlUNNCXzrU1gl0vaKvHuA4wA==",
   "success": true,
   "projectFilePath": "C:\\Users\\ProEu\\source\\repos\\LibraryApp\\LibraryApp.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\ProEu\\.nuget\\packages\\azure.core\\1.25.0\\azure.core.1.25.0.nupkg.sha512",
     "C:\\Users\\ProEu\\.nuget\\packages\\azure.identity\\1.7.0\\azure.identity.1.7.0.nupkg.sha512",
+    "C:\\Users\\ProEu\\.nuget\\packages\\dapper\\2.0.143\\dapper.2.0.143.nupkg.sha512",
     "C:\\Users\\ProEu\\.nuget\\packages\\microsoft.bcl.asyncinterfaces\\1.1.1\\microsoft.bcl.asyncinterfaces.1.1.1.nupkg.sha512",
     "C:\\Users\\ProEu\\.nuget\\packages\\microsoft.csharp\\4.5.0\\microsoft.csharp.4.5.0.nupkg.sha512",
     "C:\\Users\\ProEu\\.nuget\\packages\\microsoft.data.sqlclient\\5.1.1\\microsoft.data.sqlclient.5.1.1.nupkg.sha512",

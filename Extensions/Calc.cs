@@ -6,11 +6,11 @@ namespace LibraryApp.Extensions
 {
     public static class Calc
     {
-        public static string Hash(string str)
+        public static string Hash(string str, string salt)
         {
             var sha256 = SHA256.Create();
 
-            byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(str));
+            byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(str + salt));
 
             StringBuilder builder = new();
 

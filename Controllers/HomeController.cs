@@ -1,229 +1,121 @@
-﻿using LibraryApp.Models;
+﻿using LibraryApp.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.SqlClient;
-using Microsoft.Net.Http.Headers;
-using System.Data;
-using System.Diagnostics;
-using System.Text.RegularExpressions;
-using static System.Reflection.Metadata.BlobBuilder;
-using System.Web;
-using System.Net.Http;
-using System.Reflection;
 
 namespace LibraryApp.Controllers
 {
+
 	public class HomeController : Controller
 	{
-		private readonly SqlConnection db;
+		private readonly ISqlDataProvider<Book> _booksProvider;
+		private readonly ISqlDataProvider<SavedBooks> _savedProvider;
 
-		public HomeController(SqlConnection con)
+		public HomeController(ISqlDataProvider<Book> booksProvider, ISqlDataProvider<SavedBooks> savedProvider)
 		{
-			db = con;
+			_booksProvider = booksProvider;
+			_savedProvider = savedProvider;
 		}
 
 		public IActionResult Index() => View();
 
-		[HttpPost]
 		[Authorize]
-		[Route("/AddFav")]
-		public async Task<IActionResult> AddToFav([FromBody] BookAbstract book)
+		public async Task<IActionResult> Read(int id, string? actionType)
 		{
-
-			try
-			{
-				var DbOpenTask = db.OpenAsync();
-
-				string query = "INSERT INTO Favorites(userId, bookId) VALUES " +
-					"(@userId, @bookId); ";
-
-				using (SqlCommand cmd = new(query, db))
-				{
-					cmd.Parameters.AddWithValue("@bookId", book.Id);
-					cmd.Parameters.AddWithValue("@userId", HttpContext.User.FindFirst("id")!.Value);
-					await cmd.ExecuteNonQueryAsync();
-				}
-			}
-			catch (Exception e)
-			{
-				return BadRequest();
-			}
-			finally
-			{
-				await db.CloseAsync();
-			}
-
-			return Ok();
-		}
-
-		[HttpPost]
-		[Authorize]
-		[Route("/RemoveFav")]
-		public async Task<IActionResult> RemoveFromFav([FromBody] BookAbstract book)
-		{
-
-			try
-			{
-				var DbOpenTask = db.OpenAsync();
-
-				string query = "DELETE FROM Favorites WHERE userId = @userId AND bookId = @bookId; ";
-
-				using (SqlCommand cmd = new(query, db))
-				{
-					cmd.Parameters.AddWithValue("@bookId", book.Id);
-					cmd.Parameters.AddWithValue("@userId", HttpContext.User.FindFirst("id")!.Value);
-					await cmd.ExecuteNonQueryAsync();
-				}
-			}
-			catch (Exception e)
-			{
-				return BadRequest();
-			}
-			finally
-			{
-				await db.CloseAsync();
-			}
-
-			return Ok();
-		}
-
-		[Authorize]
-		public async Task<IActionResult> Read(Guid? id, string? actionType)
-		{
-			string query = "SELECT * FROM Books WHERE id = @id; ";
 			Book book = new();
 
 			try
 			{
-				await db.OpenAsync();
+				book = await _booksProvider.Get(id);
 
-				using (SqlCommand cmd = new(query, db))
-				{
-					cmd.Parameters.AddWithValue("@id", id);
-
-					using (SqlDataReader reader = await cmd.ExecuteReaderAsync())
-					{
-						if (!reader.HasRows)
-						{
-							return Content("No book found by this id.");
-						}
-
-						while (await reader.ReadAsync())
-						{
-							book = new()
-							{
-								Name = reader.GetString(1),
-								BookContents = (byte[])reader[6],
-							};
-						}
-					}
-				}
+				if (book == null)
+					throw new Exception("Not found!");
 			}
-			catch (Exception e)
+			catch (Exception ex)
 			{
-				Console.WriteLine(e.Message);
-			}
-			finally
-			{
-				await db.CloseAsync();
+				throw;
 			}
 
 			switch (actionType)
 			{
 				case "Read":
-					return File(book.BookContents, "Application/pdf");
+					return File(book.FileData, "Application/pdf");
 				case "Download":
-					return File(book.BookContents, "Application/pdf", $"{book.Name}.pdf");
+					return File(book.FileData, "Application/pdf", $"{book.Name}.pdf");
 				default:
 					goto case "Read";
 			}
 		}
 
-		public async Task<IActionResult> Books(Guid? id = null, string pattern = "", int page = 1)
+		public async Task<IActionResult> Books(PageParams pageParams)
 		{
-			string query = "SELECT * FROM Books b LEFT JOIN Favorites f ON b.id = f.bookId; ";
-			List<Book> books = new() { };
-
 			try
 			{
-				await db.OpenAsync();
+				var books = (await _booksProvider.GetAll())
+												.Where(b => b.Name.Contains(pageParams.Pattern ?? ""));
 
-				using (SqlCommand cmd = new(query, db))
+				ViewBag.pageParams = pageParams;
+
+				return View(books);
+
+			}
+			catch (Exception ex)
+			{
+				return Problem(ex.Message);
+			}
+		}
+
+		[HttpGet("[controller]/[action]/{id:int}")]
+		public async Task<IActionResult> Books(int id)
+		{
+			try
+			{
+				var book = await _booksProvider.Get(id);
+
+				ViewBag.IsSaved = !true;
+
+				if (User.Identity!.IsAuthenticated)
 				{
-					using (SqlDataReader reader = await cmd.ExecuteReaderAsync())
-					{
-						while (await reader.ReadAsync())
-						{
-							if (id.HasValue)
-							{
-								if (!reader.GetGuid(0).Equals(id.Value))
-								{
-									continue;
-								}
+					var listFav = await _savedProvider.GetAll();
 
-								Book book = new()
-								{
-									Id = reader.GetGuid(0),
-									Name = reader.GetString(1),
-									Author = reader.GetString(2),
-									Genre = reader.GetString(3),
-									Description = reader.GetString(4),
-									Image = (byte[])reader[5],
-								};
+					var recordIds = from fav in listFav
+									where fav.UserId.Equals(int.Parse(User.FindFirst("Id")!.Value))
+									&& fav.BookId.Equals(id)
+									select fav.Id;
 
-								Guid? userId = null;
-								Guid? bookId = null;
-
-								if (!reader.IsDBNull("userId"))
-								{
-									userId = reader.GetGuid("userId");
-								}
-								if (!reader.IsDBNull("bookId"))
-								{
-									bookId = reader.GetGuid("bookId");
-								}
-
-								bool isFav = false;
-
-								if (userId != null && bookId != null)
-									if (userId.ToString() == HttpContext.User.FindFirst("id")!.Value
-										&& bookId == book.Id)
-									{ isFav = true; }
-
-								ViewBag.IsFavorite = isFav;
-
-								return View("BookDetails", book);
-							}
-							else
-							{
-								Book book = new()
-								{
-									Id = reader.GetGuid(0),
-									Name = reader.GetString(1),
-									Author = reader.GetString(2),
-									Image = (byte[])reader[5],
-								};
-
-								if (Regex.IsMatch(book.Name, pattern) || Regex.IsMatch(book.Author, pattern))
-									books.Add(book);
-							}
-						}
-					}
+					if (recordIds.Any())
+						ViewBag.IsSaved = true;
 				}
-			}
-			catch (Exception e)
-			{
-				Console.WriteLine(e.Message);
-			}
-			finally
-			{
-				await db.CloseAsync();
-			}
 
-			int pageSize = 2;
-			int totalBooks = books.Count;
+				return View("BookDetails", book);
+			}
+			catch (Exception ex)
+			{
+				//return Problem(ex.Message);
+				return RedirectToAction("Books", new { id = "" });
+			}
+		}
 
-			return View(new BooksViewModel(page, pageSize, totalBooks, books));
+		public async Task<IActionResult> SavedBooks(PageParams pageParams)
+		{
+			try
+			{
+				var saved = await _savedProvider.GetAll();
+				var books = await _booksProvider.GetAll();
+
+				var savedBooks = from svd in saved
+								 join book in books on svd.BookId equals book.Id
+								 where svd.UserId.Equals(int.Parse(User.FindFirst("Id")!.Value))
+								 && book.Name.Contains(pageParams.Pattern)
+								 select book;
+
+				ViewBag.pageParams = pageParams;
+
+				return View(savedBooks);
+			}
+			catch (Exception ex)
+			{
+				return Problem(ex.Message);
+			}
 		}
 	}
 }

@@ -12,8 +12,9 @@ namespace LibraryApp.Models
 
 		public IEnumerable<Book> Values { get; set; } = null!;
 
-		public BooksViewModel(int currPage, int pageSize, int totalItems, IEnumerable<Book> books)
+		public BooksViewModel(int currPage, int pageSize, IEnumerable<Book> books)
 		{
+			int totalItems = books.Count();
 			bool lastPageNOTEmpty = totalItems % pageSize > 0;
 			MaxPages = totalItems / pageSize + (lastPageNOTEmpty ? 1 : 0);
 

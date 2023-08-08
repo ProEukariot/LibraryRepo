@@ -1,23 +1,22 @@
-﻿using LibraryApp.Models;
-using Microsoft.AspNetCore.Authentication;
+﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.SqlClient;
-using System.Data;
-using System.Reflection;
 using System.Security.Claims;
-using LibraryApp.Extensions;
 using Microsoft.AspNetCore.Authorization;
+using LibraryApp.Data;
+using LibraryApp.Extensions;
+using System.Reflection;
+using Microsoft.IdentityModel.Tokens;
 
 namespace LibraryApp.Controllers
 {
 	public class AuthController : Controller
 	{
-		private readonly SqlConnection db;
+		private readonly ISqlDataProvider<User> _db;
 
-		public AuthController(SqlConnection con)
+		public AuthController(ISqlDataProvider<User> db)
 		{
-			db = con;
+			_db = db;
 		}
 
 		public IActionResult Login() => View();
@@ -35,7 +34,7 @@ namespace LibraryApp.Controllers
 		[HttpPost]
 		public async Task<IActionResult> Login(UserIdentity model, string? returnUrl = null)
 		{
-			User user = new();
+			User user;
 
 			if (!ModelState.IsValid)
 			{
@@ -44,51 +43,28 @@ namespace LibraryApp.Controllers
 
 			try
 			{
-				await db.OpenAsync();
+				var config = HttpContext.RequestServices.GetRequiredService<IConfiguration>();
+				string salt = config.GetValue<string>("Security:Salt") ?? throw new InvalidOperationException("No security value.");
 
-				string qry = "SELECT * FROM Users " +
-					"WHERE Username = @username AND PasswordHash = @passwordHash; ";
-
-				using (SqlCommand cmd = new(qry, db))
-				{
-					cmd.Parameters.AddWithValue("@username", model.Username);
-					cmd.Parameters.AddWithValue("@passwordHash", Calc.Hash(model.Password));
-
-					using (SqlDataReader reader = await cmd.ExecuteReaderAsync())
-					{
-						if (!reader.HasRows)
-							throw new Exception("No such a user.");
-
-						while (await reader.ReadAsync())
-						{
-							user.Id = reader.GetGuid(0);
-							user.Username = reader.GetString(1);
-							user.Email = reader.GetString(3);
-							user.Role = reader.GetString(4);
-						}
-					}
-				}
+				user = (await _db.GetAll())
+						.First(u => u.Username.Equals(model.Username)
+						&& u.Password.Equals(Calc.Hash(model.Password, salt)));
 			}
-			catch (Exception e)
+			catch (InvalidOperationException invEx)
 			{
-				ModelState.AddModelError("", e.Message);
+				return Problem(invEx.Message);
+
+			}
+			catch (Exception ex)
+			{
+				//throw;
+				ModelState.AddModelError("", "Wrong credentials.");
 				return View(model);
 			}
-			finally
-			{
-				await db.CloseAsync();
-			}
 
-			var claim = new List<Claim>() {
-				new Claim("Id", user.Id.ToString()),
-				new Claim(ClaimTypes.Name, user.Username),
-				new Claim(ClaimTypes.Email, user.Email),
-				new Claim(ClaimTypes.Role, user.Role),
-			};
+			var claimsIdentity = CreateBasicIdentity(user, CookieAuthenticationDefaults.AuthenticationScheme);
 
-			var claimsIdentity = new ClaimsIdentity(claim, CookieAuthenticationDefaults.AuthenticationScheme);
-
-			await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
+			await HttpContext.SignInAsync(new ClaimsPrincipal(claimsIdentity));
 
 			return Redirect(returnUrl ?? "/");
 		}
@@ -97,52 +73,53 @@ namespace LibraryApp.Controllers
 		public async Task<IActionResult> Regist(UserIdentityReg model, string? returnUrl = null)
 		{
 			if (!ModelState.IsValid)
-			{
 				return View(model);
-			}
+
+			int newRecordId;
 
 			try
 			{
-				await db.OpenAsync();
+				var config = HttpContext.RequestServices.GetRequiredService<IConfiguration>();
+				string salt = config.GetValue<string>("Security:Salt") ?? throw new InvalidOperationException("No security value.");
 
-				string qry = "INSERT INTO Users(Id, Username, PasswordHash, Email, Role) " +
-					"VALUES (@id, @username, @passwordHash, @email, @role); ";
-
-				using (SqlCommand cmd = new(qry, db))
-				{
-					cmd.Parameters.AddWithValue("@id", Guid.NewGuid());
-					cmd.Parameters.AddWithValue("@username", model.Username);
-					cmd.Parameters.AddWithValue("@passwordHash", Calc.Hash(model.Password));
-					cmd.Parameters.AddWithValue("@email", model.Email);
-					cmd.Parameters.AddWithValue("@role", "Customer");
-
-					await cmd.ExecuteNonQueryAsync();
-				}
+				model.Password = Calc.Hash(model.Password, salt);
+				model.Role = "Default";
+				newRecordId = await _db.Create(model);
 			}
-			catch (Exception e)
+			catch (Exception ex)
 			{
-				ModelState.AddModelError("", e.Message);
+				//throw;
+				//return Problem(ex.Message);
+				ModelState.AddModelError("", "User already exists.");
 				return View(model);
 			}
-			finally
+
+			User user = new()
 			{
-				await db.CloseAsync();
-			}
+				Id = newRecordId,
+				Username = model.Username,
+				Email = model.Email,
+				Role = model.Role
+			};
 
-			User user = new() { Username = model.Username, Email = model.Email, Role = "Customer" };
+			var claimsIdentity = CreateBasicIdentity(user, CookieAuthenticationDefaults.AuthenticationScheme);
 
-			var claim = new List<Claim>() {
+			await HttpContext.SignInAsync(new ClaimsPrincipal(claimsIdentity));
+
+			return Redirect(returnUrl ?? "/");
+		}
+
+		[NonAction]
+		private ClaimsIdentity CreateBasicIdentity(User user, string authScheme)
+		{
+			var claims = new List<Claim>() {
 				new Claim("Id", user.Id.ToString()),
 				new Claim(ClaimTypes.Name, user.Username),
 				new Claim(ClaimTypes.Email, user.Email),
 				new Claim(ClaimTypes.Role, user.Role),
 			};
 
-			var claimsIdentity = new ClaimsIdentity(claim, CookieAuthenticationDefaults.AuthenticationScheme);
-
-			await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
-
-			return Redirect(returnUrl ?? "/");
+			return new ClaimsIdentity(claims, authScheme);
 		}
 	}
 }

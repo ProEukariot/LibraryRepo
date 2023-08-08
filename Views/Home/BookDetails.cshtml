@@ -1,8 +1,10 @@
 ﻿@model LibraryApp.Models.Book
+@{
+	string onclick = User.Identity!.IsAuthenticated ? "handleRequest(this)" : "redirectToLogin(this)";
+}
 
 <div id="book-profile" class="container row my-3">
 	<img style="max-height: 36rem" class="col-12 col-sm-6 rounded img-fluid object-fit-cover" rel="@Model.Name" src="data:image/png;base64,@Convert.ToBase64String(Model.Image)" />
-
 	<div class="col-12 col-sm-6 text-center text-break">
 		<h2>@Model.Name</h2>
 		<ul style="list-style: none;">
@@ -14,20 +16,16 @@
 		<a asp-controller="Home" asp-action="Read" asp-route-ActionType="Read" asp-route-Id="@Model.Id" target="_blank" class="btn btn-success mb-2">Read</a>
 		<a asp-controller="Home" asp-action="Read" asp-route-ActionType="Download" asp-route-Id="@Model.Id" class="btn btn-warning mb-2">Download</a>
 
-		@{
-			string onclick = User.Identity!.IsAuthenticated ? "handleRequest(this)" : "redirectToLogin(this)";
-		}
-
-		<button id="favBtn" class="btn btn-primary mb-2" onclick="@onclick"></button>
+		<button id="saveBtn" class="btn btn-primary mb-2" onclick="@onclick"></button>
 
 	</div>
 </div>
 
 <script>
-	let isFav = @ViewBag.IsFavorite.ToString().ToLower();
+	let isSaved = @ViewBag.IsSaved.ToString().ToLower();
 
-	const btn = document.getElementById('favBtn');
-	btn.textContent = isFav ? 'Remove favorite' : 'Add favorite';
+	const btn = document.getElementById('saveBtn');
+	btn.textContent = isSaved ? 'Remove saved' : 'Save';
 
 
 	const redirectToLogin = (caller) => {
@@ -37,10 +35,10 @@
 	@if (User.Identity.IsAuthenticated)
 	{
 		<text>
-			const handleRequest = (caller) => {
-			const data = { id: '@Model.Id' }
+							const handleRequest = (caller) => {
+			const data = { Id: '@Model.Id' }
 
-			const url = isFav ? "/RemoveFav" : "/AddFav";
+			const url = isSaved ? "/api/SavedBooks/Remove" : "/api/SavedBooks/Add";
 
 			const request = new XMLHttpRequest();
 			request.open("POST", url, true);
@@ -48,11 +46,12 @@
 
 			request.onload = () => {
 				if (request.status === 200) {
-					isFav = !isFav;
-					btn.textContent = isFav ? 'Remove favorite' : 'Add favorite';
+					console.log("Response: " + request.response);
+					isSaved = !isSaved;
+					btn.textContent = isSaved ? 'Remove saved' : 'Save';
 				}
 				else
-					console.log("ERROR!");
+					console.log("ERROR!", request.response);
 			}
 
 			const dataStr = JSON.stringify(data);

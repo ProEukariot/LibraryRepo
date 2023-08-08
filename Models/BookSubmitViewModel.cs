@@ -2,7 +2,7 @@
 
 namespace LibraryApp.Models
 {
-	public class BookSubmitViewModel : BookAbstract
+	public class BookSubmitViewModel : BookData
 	{
 		[Required]
 		[Display(Name = "Image")]

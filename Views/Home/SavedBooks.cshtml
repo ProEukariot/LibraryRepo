@@ -1,0 +1,15 @@
+﻿@model IEnumerable<Book>
+@inject IConfiguration Config
+
+@{
+	int page = @ViewBag.pageParams.Page;
+	int pageSize = int.Parse(Config["Views:SavedBooks:PageSize"]!);
+}
+
+<div class="container-fluid my-3 px-4">
+
+	<h1 class="me-3 mb-0">Saved books</h1>
+
+	@await Component.InvokeAsync("BookList", new BooksViewModel(page, pageSize, Model))
+
+</div>

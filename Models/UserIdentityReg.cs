@@ -9,6 +9,7 @@ namespace LibraryApp.Models
         [Display(Name = "Repeat password")]
         [Compare("Password")]
         [StringLength(12, MinimumLength = 4)]
-        public string RepeatedPassword { get; set; } = string.Empty;
+		[MaxLength(20)]
+		public string RepeatedPassword { get; set; } = string.Empty;
     }
 }

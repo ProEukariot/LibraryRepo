@@ -1,4 +1,5 @@
-﻿using LibraryApp.Models;
+﻿using LibraryApp.Data;
+using LibraryApp.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
@@ -9,11 +10,11 @@ namespace LibraryApp.Controllers
 	[Authorize(Roles = "Admin")]
 	public class AdminController : Controller
 	{
-		private readonly SqlConnection db;
+		private readonly ISqlDataProvider<Book> _db;
 
-		public AdminController(SqlConnection con)
+		public AdminController(ISqlDataProvider<Book> db)
 		{
-			db = con;
+			_db = db;
 		}
 
 		public IActionResult Index() => View();
@@ -26,50 +27,42 @@ namespace LibraryApp.Controllers
 			if (!ModelState.IsValid)
 				return View(model);
 
-			byte[] imgBuffer = new byte[model.Image!.Length];
-			byte[] dataBuffer = new byte[model.BookContents!.Length];
-
-			Stream streamImage = model.Image.OpenReadStream(); ;
-			Stream streamContent = model.BookContents.OpenReadStream(); ;
-
-			try
+			using (var imgStream = new MemoryStream())
+			using (var fileStream = new MemoryStream())
 			{
-				var DbOpenTask = db.OpenAsync();
-				var ReadImgTask = streamImage.ReadAsync(imgBuffer, 0, imgBuffer.Length);
-				var ReadContentTask = streamContent.ReadAsync(dataBuffer, 0, dataBuffer.Length);
+				var imgTask = model.Image.CopyToAsync(imgStream);
+				var fileTask = model.BookContents.CopyToAsync(fileStream);
 
-				await Task.WhenAll(DbOpenTask, ReadImgTask, ReadContentTask);
+				await Task.WhenAll(imgTask, fileTask);
 
-				string query = "INSERT INTO Books(Id, Name, Author, Genre, Description, Image, FileData) " +
-					"VALUES (@id, @name, @athor, @genre, @desc, @image, @file); ";
+				var imgBytes = imgStream.ToArray();
+				var fileBytes = fileStream.ToArray();
 
-				using (SqlCommand cmd = new(query, db))
+				Book book = new() 
 				{
-					cmd.Parameters.AddWithValue("@id", Guid.NewGuid());
-					cmd.Parameters.AddWithValue("@name", model.Name);
-					cmd.Parameters.AddWithValue("@athor", model.Author);
-					cmd.Parameters.AddWithValue("@genre", model.Genre);
-					cmd.Parameters.AddWithValue("@desc", model.Description);
-					cmd.Parameters.AddWithValue("@image", imgBuffer);
-					cmd.Parameters.AddWithValue("@file", dataBuffer);
-
-					await cmd.ExecuteNonQueryAsync();
+					Name = model.Name,
+					Author = model.Author,
+					Genre = model.Genre,
+					Description = model.Description,
+					Image = imgBytes,
+					FileData = fileBytes
+				};
+#pragma warning disable CS0168
+				try
+				{
+					await _db.Create(book);
 				}
-			}
-			catch (Exception e)
-			{
-				ModelState.AddModelError("", e.Message);
-				HttpContext.Response.StatusCode = 400;
-				return View(model);
-			}
-			finally
-			{
-				await db.CloseAsync();
-				streamImage.Close();
-				streamContent.Close();
+				catch (Exception ex)
+				{
+					//throw;
+					//return Problem(ex.Message);
+					Response.StatusCode = 201;
+					return View(model);
+				}
+#pragma warning restore CS0168
 			}
 
-			HttpContext.Response.StatusCode = 201;
+			Response.StatusCode = 201;
 
 			return View(model);
 			//return RedirectToAction("AddBook", "Admin");
